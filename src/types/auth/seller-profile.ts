@@ -6,15 +6,12 @@ export type SellerType =
   | string;
 
 export type SellerStatus =
-  | 'PENDING'
-  | 'ACTIVE'
-  | 'SUSPENDED'
-  | 'REJECTED'
-  | string;
+  'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED' | string;
 
 export type MeSellerProfile = {
-  logoUrl: any;
   id: string;
+  /** Absent until the seller uploads one. */
+  logoUrl: string | null;
   sellerType: SellerType;
   status: SellerStatus;
   businessName: string;

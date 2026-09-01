@@ -1,5 +1,7 @@
 'use client';
 
+import type { ElementType } from 'react';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -91,7 +93,7 @@ export function WorkspaceShell({
                                 )}
                               >
                                 {(() => {
-                                  const Icon = item.icon as any;
+                                  const Icon: ElementType = item.icon;
                                   return <Icon className="size-4" />;
                                 })()}
                               </span>

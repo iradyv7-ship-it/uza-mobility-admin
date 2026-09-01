@@ -3,19 +3,10 @@ import { adminKeys } from '@/queries/admin';
 import { commerceKeys } from '@/queries/commerce';
 
 type AdminSegment =
-  | 'listings'
-  | 'parts'
-  | 'sellers'
-  | 'categories'
-  | 'operators'
-  | 'stations';
+  'listings' | 'parts' | 'sellers' | 'categories' | 'operators' | 'stations';
 
 type CommerceSegment =
-  | 'payments'
-  | 'invoices'
-  | 'orders'
-  | 'financing'
-  | 'buyers';
+  'payments' | 'invoices' | 'orders' | 'financing' | 'buyers';
 
 function invalidateAdminSegment(
   queryClient: QueryClient,

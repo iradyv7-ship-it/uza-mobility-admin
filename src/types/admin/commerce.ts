@@ -1,9 +1,5 @@
 export type PaymentStatus =
-  | 'SUBMITTED'
-  | 'UNDER_VERIFICATION'
-  | 'CONFIRMED'
-  | 'REJECTED'
-  | 'REFUNDED';
+  'SUBMITTED' | 'UNDER_VERIFICATION' | 'CONFIRMED' | 'REJECTED' | 'REFUNDED';
 
 export type InvoiceStatus =
   | 'DRAFT'

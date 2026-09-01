@@ -1,9 +1,5 @@
 export type InquiryStatus =
-  | 'RECEIVED'
-  | 'CONTACTED'
-  | 'QUOTED'
-  | 'CONVERTED'
-  | 'CLOSED';
+  'RECEIVED' | 'CONTACTED' | 'QUOTED' | 'CONVERTED' | 'CLOSED';
 
 export type AdminInquiry = {
   id: string;

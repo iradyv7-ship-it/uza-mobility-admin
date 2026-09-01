@@ -26,7 +26,11 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { usePermissions } from '@/hooks/permissions';
-import { formatDate, formatDateTime, formatInvoiceTotal } from '@/lib/admin/format';
+import {
+  formatDate,
+  formatDateTime,
+  formatInvoiceTotal,
+} from '@/lib/admin/format';
 import { adminDetailSheetClassName } from '@/lib/admin/detail-sheet';
 import { formatSellerChannel } from '@/lib/auth/seller-profiles';
 import {

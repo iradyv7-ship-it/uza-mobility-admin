@@ -158,9 +158,7 @@ export function AdminOrdersPanel() {
                     <TableCell className="text-xs">
                       {formatSellerChannel(order.sellerType)}
                     </TableCell>
-                    <TableCell>
-                      {formatInvoiceTotal(order.invoice)}
-                    </TableCell>
+                    <TableCell>{formatInvoiceTotal(order.invoice)}</TableCell>
                     <TableCell>
                       <StatusBadge status={order.status} />
                     </TableCell>

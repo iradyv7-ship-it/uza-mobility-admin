@@ -1014,7 +1014,8 @@ export function ListingFormDialog({
           )}
           {priceBreakdown?.finalPriceRwf != null ? (
             <p className="text-xs text-muted-foreground">
-              Calculated customer price {formatRwf(priceBreakdown.finalPriceRwf)}
+              Calculated customer price{' '}
+              {formatRwf(priceBreakdown.finalPriceRwf)}
             </p>
           ) : null}
 

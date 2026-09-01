@@ -1,0 +1,53 @@
+# Every push and pull request runs exactly what a developer runs locally.
+#
+# `npm run verify` is the same command here and on a laptop, so a red tick is
+# reproducible in one step rather than by guessing which flags CI used.
+name: verify
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      # Next inlines public env at build time. These are placeholders so the build
+      # is reproducible in CI; nothing here reaches a real environment.
+      NEXT_PUBLIC_API_URL: http://localhost:7000
+      NEXT_PUBLIC_APP_URL: http://localhost:3001
+      # AUTH_SECRET, not NEXTAUTH_SECRET — this app is on Auth.js v5, which renamed it.
+      # Getting it wrong builds green and fails at runtime with an opaque session error.
+      AUTH_SECRET: ci-only-not-a-real-secret
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      # verify is typecheck -> lint -> build. The build is in it deliberately: a
+      # misplaced 'use client' directive typechecks and lints clean, then fails the
+      # bundler. That happened in uza-mobility-fn on 30 August 2026.
+      - run: npm run verify
+
+  audit:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high

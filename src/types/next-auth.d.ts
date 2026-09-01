@@ -1,3 +1,9 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type --
+ * Module augmentation. `interface User extends AuthUser {}` is the documented way to
+ * merge a declaration into next-auth's own `User`, and the empty body is the whole
+ * mechanism: it contributes the extends clause and nothing else. Adding a member to
+ * satisfy the rule would change the type. The rule is wrong about this file.
+ */
 /**
  * NextAuth / Auth.js module augmentation.
  * App code should use `@/types/auth/*`, not `next-auth` types directly.

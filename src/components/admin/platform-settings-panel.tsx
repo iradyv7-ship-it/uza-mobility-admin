@@ -136,7 +136,9 @@ export function AdminPlatformSettingsPanel() {
           </div>
 
           <div className="space-y-3 rounded-md border bg-muted/30 p-3">
-            <p className="text-sm font-medium">Frozen leftover USD → Rwf rate</p>
+            <p className="text-sm font-medium">
+              Frozen leftover USD → Rwf rate
+            </p>
             <div className="space-y-1.5">
               <Label htmlFor="frozen-rate">USD to Rwf</Label>
               <NumberInput

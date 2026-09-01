@@ -12,7 +12,12 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { usePermissions } from '@/hooks/permissions';
-import { formatDate, formatDateTime, formatInvoiceTotal, formatSettledAmount } from '@/lib/admin/format';
+import {
+  formatDate,
+  formatDateTime,
+  formatInvoiceTotal,
+  formatSettledAmount,
+} from '@/lib/admin/format';
 import { adminDetailSheetClassName } from '@/lib/admin/detail-sheet';
 import {
   downloadAdminInvoiceDocument,
@@ -209,7 +214,12 @@ export function InvoiceDetailSheet({
                           key={payment.id}
                           className="flex items-center justify-between rounded-md border px-3 py-2"
                         >
-                          <span>{formatSettledAmount(payment.amountPaid, payment.currency)}</span>
+                          <span>
+                            {formatSettledAmount(
+                              payment.amountPaid,
+                              payment.currency,
+                            )}
+                          </span>
                           <StatusBadge status={payment.status} />
                         </li>
                       ))}

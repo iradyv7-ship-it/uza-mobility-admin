@@ -46,6 +46,13 @@ const apiUrl = (
 ).replace(/\/$/, '');
 
 const config: NextConfig = {
+  /*
+   * Standalone output, so this is not deployable to exactly one host. The staff panel
+   * holds the most privileged views in the estate; where it can run should be UZA's
+   * decision, not a platform's.
+   */
+  output: 'standalone',
+
   // React Compiler (already enabled in this project)
   reactCompiler: true,
 

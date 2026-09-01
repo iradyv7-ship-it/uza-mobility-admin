@@ -11,29 +11,16 @@ export type StationStatus =
   | 'CLOSED';
 export type LocationType = 'PUBLIC' | 'PRIVATE' | 'SEMI_PUBLIC' | 'FLEET_ONLY';
 export type StationOperationalStatus =
-  | 'OPERATIONAL'
-  | 'PARTIALLY_OPERATIONAL'
-  | 'OFFLINE'
-  | 'MAINTENANCE';
+  'OPERATIONAL' | 'PARTIALLY_OPERATIONAL' | 'OFFLINE' | 'MAINTENANCE';
 export type ChargerType =
-  | 'AC_TYPE2'
-  | 'DC_CCS'
-  | 'DC_CHADEMO'
-  | 'DC_GBDC'
-  | 'AC_TYPE1'
-  | 'TESLA_WALL';
+  'AC_TYPE2' | 'DC_CCS' | 'DC_CHADEMO' | 'DC_GBDC' | 'AC_TYPE1' | 'TESLA_WALL';
 export type SpeedCategory = 'SLOW' | 'FAST' | 'RAPID' | 'ULTRA_RAPID';
 export type CurrentType = 'AC' | 'DC';
 export type PortStatus = 'AVAILABLE' | 'IN_USE' | 'FAULTED' | 'OUT_OF_SERVICE';
 export type StationPricingModel =
-  | 'PER_KWH'
-  | 'PER_MINUTE'
-  | 'PER_SESSION'
-  | 'FREE';
+  'PER_KWH' | 'PER_MINUTE' | 'PER_SESSION' | 'FREE';
 export type VehicleCategory =
-  | 'PASSENGER_EV'
-  | 'TWO_THREE_WHEEL'
-  | 'COMMERCIAL_EV';
+  'PASSENGER_EV' | 'TWO_THREE_WHEEL' | 'COMMERCIAL_EV';
 
 export type OperatorProfile = {
   id: string;

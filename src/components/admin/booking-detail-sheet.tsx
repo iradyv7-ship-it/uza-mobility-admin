@@ -119,9 +119,7 @@ export function BookingDetailSheet({
                 <dl className="grid gap-3 text-sm sm:grid-cols-2">
                   <div className="flex justify-between gap-4 sm:flex-col sm:gap-1">
                     <dt className="text-muted-foreground">Booking fee</dt>
-                    <dd className="font-medium">
-                      {formatBookingFee(booking)}
-                    </dd>
+                    <dd className="font-medium">{formatBookingFee(booking)}</dd>
                   </div>
                   <div className="flex justify-between gap-4 sm:flex-col sm:gap-1">
                     <dt className="text-muted-foreground">Paid to account</dt>
