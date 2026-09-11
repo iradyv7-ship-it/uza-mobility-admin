@@ -1,3 +1,13 @@
+/**
+ * Every role a SUPER_ADMIN can grant from the user sheet.
+ *
+ * This list is the UI's allow-list, not the API's — `PATCH /admin/users/:id/roles` accepts
+ * any role that exists. Until 11 September 2026 the lender and workshop roles were missing
+ * here, which meant a bank officer or a mechanic could only be onboarded with a raw API call
+ * or SQL against production. The sheet initialises from the user's current roles, so a role
+ * absent from this list was preserved on save rather than stripped — but it could never be
+ * granted or removed from the panel, and that is the day-one operation for a new lender.
+ */
 export const assignableRoleNames = [
   'SUPER_ADMIN',
   'MARKETPLACE_ADMIN',
@@ -9,6 +19,16 @@ export const assignableRoleNames = [
   'SALES_AGENT',
   'SELLER',
   'BUYER',
+  'CHARGING_OPERATOR',
+  // Workshop
+  'MECHANIC',
+  'WORKSHOP_ADMIN',
+  // Lender portals — one role per bank, checked by name in the API's LenderAccessGuard.
+  // Granting LENDER_UNGUKA is also what makes the cash-collateral view reachable for that
+  // account; every other lender role never sees it, by construction on the API side.
+  'LENDER_UNGUKA',
+  'LENDER_EQUITY',
+  'LENDER_NCBA',
 ] as const;
 
 export type AssignableRoleName = (typeof assignableRoleNames)[number];
