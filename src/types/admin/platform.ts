@@ -31,6 +31,8 @@ export const assignableRoleNames = [
   'LENDER_UNGUKA',
   'LENDER_EQUITY',
   'LENDER_NCBA',
+  // Academy: records attendance and assessments. Checked by name on /academy/*.
+  'TRAINER',
 ] as const;
 
 export type AssignableRoleName = (typeof assignableRoleNames)[number];
