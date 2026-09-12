@@ -17,6 +17,8 @@ export const assignableRoleNames = [
   'SUSTAINABILITY_ADMIN',
   'ADVERTISING_ADMIN',
   'SALES_AGENT',
+  // Intake table only: fund-applications:manage and nothing else.
+  'INTAKE_OFFICER',
   'SELLER',
   'BUYER',
   'CHARGING_OPERATOR',

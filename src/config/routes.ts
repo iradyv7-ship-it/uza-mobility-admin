@@ -22,6 +22,7 @@ export const adminRoutes = {
   inquiries: '/admin/inquiries',
   invoices: '/admin/invoices',
   financing: '/admin/financing',
+  fundApplications: '/admin/fund-applications',
   stations: '/admin/stations',
   fleet: '/admin/fleet',
   energy: '/admin/energy',

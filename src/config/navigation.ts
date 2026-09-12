@@ -22,6 +22,7 @@ import {
   Settings,
   Car,
   MessageCircle,
+  ClipboardList,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -133,6 +134,12 @@ export const adminNavGroups: NavGroup[] = [
         href: adminRoutes.financing,
         icon: DollarSign,
         permissions: ['financing:read', 'financing:send-to-bank'],
+      },
+      {
+        label: 'Empower applications',
+        href: adminRoutes.fundApplications,
+        icon: ClipboardList,
+        permissions: ['fund-applications:manage'],
       },
     ],
   },

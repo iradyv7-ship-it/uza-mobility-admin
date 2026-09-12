@@ -10,6 +10,7 @@ export const PLATFORM_STAFF_ROLES: PlatformRole[] = [
   'SUSTAINABILITY_ADMIN',
   'ADVERTISING_ADMIN',
   'SALES_AGENT',
+  'INTAKE_OFFICER',
 ];
 
 /** Permissions that only platform staff hold. */
