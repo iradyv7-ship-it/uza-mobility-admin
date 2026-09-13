@@ -136,7 +136,7 @@ export const adminNavGroups: NavGroup[] = [
         permissions: ['financing:read', 'financing:send-to-bank'],
       },
       {
-        label: 'Empower applications',
+        label: 'Twara EV applications',
         href: adminRoutes.fundApplications,
         icon: ClipboardList,
         permissions: ['fund-applications:manage'],

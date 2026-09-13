@@ -47,8 +47,8 @@ export function FundApplicationsPanel() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <PageHeader
-          title="UZA Empower applications"
-          description="Fund applications from taxi drivers, keyed in from the signed paper form. A draft may be incomplete; signing requires the declarations."
+          title="Twara EV applications"
+          description="UZA Empower fund applications from taxi drivers for the Twara EV product, keyed in from the signed paper form. A draft may be incomplete; signing requires the declarations."
         />
         <Button onClick={() => setCreating(true)}>New application</Button>
       </div>

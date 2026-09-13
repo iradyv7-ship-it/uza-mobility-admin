@@ -116,7 +116,7 @@ export function FundApplicationFormDialog({ open, onOpenChange, onCreated }: Pro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>New UZA Empower application</DialogTitle>
+          <DialogTitle>New Twara EV application</DialogTitle>
           <DialogDescription>
             Key in from the signed paper form, section by section. Only name, national ID,
             telephone and district are needed to save a draft; everything else can be added
