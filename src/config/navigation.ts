@@ -141,6 +141,18 @@ export const adminNavGroups: NavGroup[] = [
         icon: ClipboardList,
         permissions: ['fund-applications:manage'],
       },
+      {
+        label: 'Loans',
+        href: adminRoutes.loans,
+        icon: DollarSign,
+        permissions: ['financing:read', 'financing:send-to-bank'],
+      },
+      {
+        label: 'Tasks',
+        href: adminRoutes.tasks,
+        icon: ClipboardList,
+        permissions: ['financing:read', 'fund-applications:manage'],
+      },
     ],
   },
   {
@@ -168,6 +180,12 @@ export const adminNavGroups: NavGroup[] = [
           'stations:reject',
           'stations:suspend',
         ],
+      },
+      {
+        label: 'Garage partners',
+        href: adminRoutes.mechanics,
+        icon: Wrench,
+        permissions: ['fleet:read', 'parts:manage'],
       },
       {
         label: 'Promotions',

@@ -6,6 +6,7 @@ import { ApiClientError } from '@/lib/api';
 import {
   createPricingRule,
   activateAdminUser,
+  createAdminAccount,
   deactivateAdminUser,
   deactivatePricingRule,
   getAdminActivityLogs,
@@ -22,6 +23,7 @@ import type {
   CreatePricingRuleInput,
   UpdatePricingRuleInput,
 } from '@/schemas/platform';
+import type { CreateAdminAccountInput } from '@/schemas/admin-accounts';
 
 export const platformKeys = {
   all: ['platform'] as const,
@@ -41,6 +43,22 @@ export function useAdminUsers() {
   return useQuery({
     queryKey: platformKeys.users(),
     queryFn: getAdminUsers,
+  });
+}
+
+/**
+ * No success toast carrying the password — a toast can be missed or dismissed before it's
+ * read. The caller (CreateAccountDialog) keeps the returned `temporaryPassword` on screen
+ * itself until the admin closes the dialog.
+ */
+export function useCreateAdminAccount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: CreateAdminAccountInput) => createAdminAccount(body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: platformKeys.users() });
+    },
+    onError: (error) => toastError(error, 'Failed to create the account'),
   });
 }
 

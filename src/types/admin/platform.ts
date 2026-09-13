@@ -39,11 +39,15 @@ export type AssignableRoleName = (typeof assignableRoleNames)[number];
 
 export type AdminUser = {
   id: string;
+  /** The permanent UZA-P-2026-… id. Null on an account that predates auto-assignment. */
+  uzaId: string | null;
   email: string;
   firstName: string | null;
   lastName: string | null;
   phone: string | null;
   isActive: boolean;
+  /** Set on an account staff created on someone's behalf, until they set their own password. */
+  mustChangePassword: boolean;
   deletedAt: string | null;
   roles: string[];
   createdAt: string;

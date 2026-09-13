@@ -20,9 +20,23 @@ import type {
   CreatePricingRuleInput,
   UpdatePricingRuleInput,
 } from '@/schemas/platform';
+import type { CreateAdminAccountInput } from '@/schemas/admin-accounts';
 
 export function getAdminUsers() {
   return authenticatedFetch<AdminUser[]>('/admin/users');
+}
+
+/**
+ * Create an account on someone else's behalf — a driver, a bank officer, a workshop
+ * partner — with a temporary password the API generates. Returned exactly once; the API
+ * never stores it in cleartext and this app never persists it either (see
+ * CreateAccountDialog, which shows it only in the dialog that made the call).
+ */
+export function createAdminAccount(body: CreateAdminAccountInput) {
+  return authenticatedFetch<{ user: AdminUser; temporaryPassword: string }>(
+    '/admin/users',
+    { method: 'POST', body: JSON.stringify(body) },
+  );
 }
 
 export function updateAdminUserRoles(id: string, body: AssignUserRolesInput) {

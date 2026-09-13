@@ -5,12 +5,16 @@ import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import { ApiClientError } from '@/lib/api';
 import {
+  assignTask,
+  completeTask,
+  getMyTasks,
   getNotifications,
   getUnreadNotificationCount,
   markAllNotificationsRead,
   markNotificationRead,
 } from '@/lib/api/notifications';
 import type { NotificationsFilters } from '@/types/notifications';
+import type { AssignTaskInput } from '@/schemas/tasks';
 import { invalidateNotificationLists } from '@/lib/notifications/query-cache';
 
 export const notificationKeys = {
@@ -19,6 +23,8 @@ export const notificationKeys = {
     [...notificationKeys.all, 'unread-count', userId] as const,
   list: (userId: string, filters: NotificationsFilters) =>
     [...notificationKeys.all, 'list', userId, filters] as const,
+  tasks: (userId: string, includeCompleted: boolean) =>
+    [...notificationKeys.all, 'tasks', userId, includeCompleted] as const,
 };
 
 function toastError(error: unknown, fallback: string) {
@@ -100,5 +106,44 @@ export function useMarkAllNotificationsRead() {
     },
     onError: (error) =>
       toastError(error, 'Failed to mark notifications as read'),
+  });
+}
+
+/** My own task box — work assigned to me, soonest deadline first. */
+export function useMyTasks(includeCompleted = false) {
+  const { userId, accessToken, ready } = useNotificationSession();
+
+  return useQuery({
+    queryKey: notificationKeys.tasks(userId ?? '', includeCompleted),
+    queryFn: () => getMyTasks(includeCompleted, accessToken),
+    enabled: ready,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useCompleteTask() {
+  const queryClient = useQueryClient();
+  const { userId, accessToken } = useNotificationSession();
+
+  return useMutation({
+    mutationFn: (id: string) => completeTask(id, accessToken),
+    onSuccess: () => {
+      toast.success('Task marked done');
+      if (userId) {
+        void queryClient.invalidateQueries({
+          queryKey: [...notificationKeys.all, 'tasks', userId],
+        });
+      }
+    },
+    onError: (error) => toastError(error, 'Failed to complete the task'),
+  });
+}
+
+/** Assign a task with a deadline to a named colleague. */
+export function useAssignTask() {
+  return useMutation({
+    mutationFn: (body: AssignTaskInput) => assignTask(body),
+    onSuccess: () => toast.success('Task assigned'),
+    onError: (error) => toastError(error, 'Failed to assign the task'),
   });
 }

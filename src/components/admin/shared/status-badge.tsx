@@ -34,6 +34,13 @@ const statusStyles: Record<string, string> = {
   REFUNDED: 'bg-muted text-muted-foreground',
   DRAFT: 'bg-muted text-muted-foreground',
   SOLD: 'bg-muted text-muted-foreground',
+  // Loan / loan-change-request statuses
+  IN_REVIEW: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
+  DECLINED: 'bg-red-500/15 text-red-700 dark:text-red-400',
+  DISBURSED: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
+  IN_ARREARS: 'bg-red-500/15 text-red-700 dark:text-red-400',
+  CLOSED: 'bg-muted text-muted-foreground',
+  APPLIED: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
 };
 
 type StatusBadgeProps = {

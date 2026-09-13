@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { CreateAccountDialog } from '@/components/admin/create-account-dialog';
 import { UserDetailSheet } from '@/components/admin/user-detail-sheet';
 import { SuperAdminGate } from '@/components/admin/super-admin-gate';
 import { PageHeader } from '@/components/shared/page-header';
@@ -26,6 +27,7 @@ export function AdminUsersPanel() {
   const [q, setQ] = useState('');
   const [selected, setSelected] = useState<AdminUser | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -50,10 +52,13 @@ export function AdminUsersPanel() {
   return (
     <SuperAdminGate>
       <div className="space-y-6">
-        <PageHeader
-          title="Users"
-          description="View accounts, assign roles, and deactivate users. Administrator access only."
-        />
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <PageHeader
+            title="Users"
+            description="View accounts, assign roles, and deactivate users. Administrator access only."
+          />
+          <Button onClick={() => setCreating(true)}>New account</Button>
+        </div>
 
         <div className="max-w-md space-y-1.5">
           <Label htmlFor="users-q">Search</Label>
@@ -144,6 +149,7 @@ export function AdminUsersPanel() {
           open={detailOpen}
           onOpenChange={setDetailOpen}
         />
+        <CreateAccountDialog open={creating} onOpenChange={setCreating} />
       </div>
     </SuperAdminGate>
   );
