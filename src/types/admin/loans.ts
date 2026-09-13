@@ -16,6 +16,9 @@ export const loanStatuses = [
 ] as const;
 export type LoanStatus = (typeof loanStatuses)[number];
 
+export const vehicleUnitConditions = ['NEW', 'USED'] as const;
+export type VehicleUnitCondition = (typeof vehicleUnitConditions)[number];
+
 export type LoanVehicle = {
   id: string;
   chassisNumber: string;
@@ -24,6 +27,20 @@ export type LoanVehicle = {
   year: number | null;
   color: string | null;
   plate: string | null;
+  condition: VehicleUnitCondition;
+};
+
+/** Mirrors inspectionEconomicsFor() in uza-mobility-bn's inspection-economics.ts. The
+ * contracted rate and split are an explicit, overridable ASSUMPTION — not yet negotiated
+ * with a real garage — surfaced here as-is rather than hidden behind a settled-looking UI. */
+export type LoanInspectionEconomics = {
+  condition: VehicleUnitCondition;
+  inspectionsPerYear: number;
+  cycleDays: number;
+  contractedRateRwf: number;
+  dailyReserveRwf: number;
+  garageTakeHomeRwf: number;
+  uzaPlatformFeeRwf: number;
 };
 
 export type LoanBorrower = {
@@ -78,6 +95,7 @@ export type Loan = {
 export type LoanDetail = Loan & {
   borrower: LoanBorrower;
   tenorChanges: LoanTenorChange[];
+  inspectionEconomics: LoanInspectionEconomics;
 };
 
 export const loanChangeTypes = ['TENOR', 'CONTRIBUTION', 'VEHICLE_PRICE'] as const;

@@ -74,6 +74,8 @@ export function LoanDetailSheet({ id, open, onOpenChange }: Props) {
           <div className="space-y-8 py-6">
             <Summary l={l} />
             <Separator />
+            <InspectionReserve l={l} />
+            <Separator />
             <TenorChange l={l} />
             {l.tenorChanges.length > 0 ? (
               <>
@@ -122,6 +124,28 @@ function vehicleLine(l: LoanDetail) {
   return [l.vehicle?.year, l.vehicle?.make, l.vehicle?.model, l.vehicle?.color]
     .filter(Boolean)
     .join(' ');
+}
+
+/** Mobility Ecosystem Blueprint, Section 06 — the daily set-aside so the next inspection
+ * is never a surprise bill. The 15,000 RWF rate is an explicit, unnegotiated ASSUMPTION,
+ * shown as such rather than presented as settled. */
+function InspectionReserve({ l }: { l: LoanDetail }) {
+  const e = l.inspectionEconomics;
+  return (
+    <section className="space-y-2">
+      <h3 className="text-sm font-semibold">Inspection reserve</h3>
+      <p className="text-xs text-muted-foreground">
+        {e.condition === 'NEW' ? 'New' : 'Used'} vehicle — {e.inspectionsPerYear} inspections/year,
+        every {e.cycleDays} days. Rate ({formatRwf(e.contractedRateRwf)}) is a proposed structure,
+        not yet negotiated with a real garage partner.
+      </p>
+      <dl className="grid gap-x-8 gap-y-1.5 text-sm sm:grid-cols-2">
+        <Row label="Daily reserve" value={formatRwf(e.dailyReserveRwf)} />
+        <Row label="Garage take-home" value={formatRwf(e.garageTakeHomeRwf)} />
+        <Row label="UZA platform fee" value={formatRwf(e.uzaPlatformFeeRwf)} />
+      </dl>
+    </section>
+  );
 }
 
 /** Staff changing tenor directly — a UZA decision, distinct from a lender's change request. */

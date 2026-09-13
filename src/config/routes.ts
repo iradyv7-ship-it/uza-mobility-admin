@@ -26,6 +26,8 @@ export const adminRoutes = {
   loans: '/admin/loans',
   tasks: '/admin/tasks',
   mechanics: '/admin/mechanics',
+  trainingCourses: '/admin/training-courses',
+  impact: '/admin/impact',
   stations: '/admin/stations',
   fleet: '/admin/fleet',
   energy: '/admin/energy',

@@ -153,6 +153,12 @@ export const adminNavGroups: NavGroup[] = [
         icon: ClipboardList,
         permissions: ['financing:read', 'fund-applications:manage'],
       },
+      {
+        label: 'Impact',
+        href: adminRoutes.impact,
+        icon: Activity,
+        permissions: ['financing:read', 'fund-applications:manage'],
+      },
     ],
   },
   {
@@ -184,6 +190,12 @@ export const adminNavGroups: NavGroup[] = [
       {
         label: 'Garage partners',
         href: adminRoutes.mechanics,
+        icon: Wrench,
+        permissions: ['fleet:read', 'parts:manage'],
+      },
+      {
+        label: 'Training courses',
+        href: adminRoutes.trainingCourses,
         icon: Wrench,
         permissions: ['fleet:read', 'parts:manage'],
       },
