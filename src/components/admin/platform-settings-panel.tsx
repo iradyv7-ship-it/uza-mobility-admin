@@ -16,6 +16,7 @@ import {
 
 type FormState = {
   bookingFeeRwf: string;
+  inspectionRateRwf: string;
   usdToRwfEffective: string;
   companyLegalName: string;
   companyBankNameRwf: string;
@@ -30,6 +31,7 @@ export function AdminPlatformSettingsPanel() {
   const update = useUpdatePlatformSettings();
   const [form, setForm] = useState<FormState>({
     bookingFeeRwf: '',
+    inspectionRateRwf: '',
     usdToRwfEffective: '',
     companyLegalName: '',
     companyBankNameRwf: '',
@@ -41,6 +43,7 @@ export function AdminPlatformSettingsPanel() {
     if (!data) return;
     setForm({
       bookingFeeRwf: String(data.bookingFeeRwf ?? ''),
+      inspectionRateRwf: String(data.inspectionRateRwf ?? ''),
       usdToRwfEffective: String(data.exchangeRate?.usdToRwfEffective ?? ''),
       companyLegalName: data.companyLegalName,
       companyBankNameRwf: data.companyBankNameRwf ?? '',
@@ -64,10 +67,14 @@ export function AdminPlatformSettingsPanel() {
   }
 
   const parsedFee = Number(form.bookingFeeRwf);
+  const parsedInspectionRate = Number(form.inspectionRateRwf);
   const parsedRate = Number(form.usdToRwfEffective);
   const isValid =
     Number.isFinite(parsedFee) &&
     parsedFee > 0 &&
+    Number.isInteger(parsedInspectionRate) &&
+    parsedInspectionRate >= 1_000 &&
+    parsedInspectionRate <= 500_000 &&
     Number.isFinite(parsedRate) &&
     parsedRate > 0 &&
     form.companyLegalName.trim().length > 0 &&
@@ -78,6 +85,7 @@ export function AdminPlatformSettingsPanel() {
   const isDirty =
     data &&
     (parsedFee !== data.bookingFeeRwf ||
+      parsedInspectionRate !== data.inspectionRateRwf ||
       parsedRate !== data.exchangeRate.usdToRwfEffective ||
       form.companyLegalName.trim() !== data.companyLegalName ||
       form.companyBankNameRwf.trim() !== (data.companyBankNameRwf ?? '') ||
@@ -90,6 +98,7 @@ export function AdminPlatformSettingsPanel() {
     if (!isValid || !isDirty) return;
     update.mutate({
       bookingFeeRwf: Math.round(parsedFee),
+      inspectionRateRwf: Math.round(parsedInspectionRate),
       usdToRwfEffective: parsedRate,
       companyLegalName: form.companyLegalName.trim(),
       companyBankNameRwf: form.companyBankNameRwf.trim(),
@@ -133,6 +142,37 @@ export function AdminPlatformSettingsPanel() {
                 Current fee for new bookings: {formatRwf(data.bookingFeeRwf)}
               </p>
             ) : null}
+          </div>
+
+          <div className="space-y-1.5 rounded-md border p-3">
+            <Label htmlFor="inspection-rate">
+              Contracted inspection fee (Rwf)
+            </Label>
+            <NumberInput
+              id="inspection-rate"
+              min={1_000}
+              max={500_000}
+              step="1"
+              value={form.inspectionRateRwf}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  inspectionRateRwf: event.target.value,
+                }))
+              }
+              disabled={update.isPending}
+            />
+            <p className="text-xs text-muted-foreground">
+              What UZA pays a certified garage per scheduled inspection —
+              currently{' '}
+              {data ? formatRwf(data.inspectionRateRwf) : '—'}, split 85%
+              garage / 15% UZA. This was the Mobility Ecosystem Blueprint&rsquo;s
+              proposed starting point, not yet a rate negotiated with any real
+              garage — change it here the moment one is agreed, and every
+              driver&rsquo;s daily reserve target and the funder/investor
+              Impact Ledger pick up the new number immediately, with no
+              deploy.
+            </p>
           </div>
 
           <div className="space-y-3 rounded-md border bg-muted/30 p-3">

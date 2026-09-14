@@ -11,6 +11,7 @@ export type ExchangeRateSnapshot = {
 export type PlatformSettings = {
   bookingFeeUsd: number;
   bookingFeeRwf: number;
+  inspectionRateRwf: number;
   companyLegalName: string;
   companyBankName: string;
   companyAccountNumber: string;
@@ -25,6 +26,7 @@ export type PlatformSettings = {
 export type UpdatePlatformSettingsInput = {
   bookingFeeUsd?: number;
   bookingFeeRwf?: number;
+  inspectionRateRwf?: number;
   usdToRwfEffective?: number;
   companyLegalName?: string;
   companyBankName?: string;
