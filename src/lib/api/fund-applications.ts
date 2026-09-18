@@ -1,4 +1,6 @@
 import { authenticatedFetch } from '@/lib/api/authenticated';
+import { authenticatedMultipartFetch } from '@/lib/api/multipart';
+import { siteConfig } from '@/config/site';
 import type {
   DeclarationsInput,
   FundApplicationInput,
@@ -6,6 +8,8 @@ import type {
 } from '@/schemas/fund-applications';
 import type {
   FundApplication,
+  FundApplicationDocument,
+  FundApplicationDocumentKind,
   FundApplicationScreening,
   FundApplicationStatus,
 } from '@/types/admin/fund-applications';
@@ -69,3 +73,32 @@ export function signFundApplication(id: string, body: SignatureInput) {
 export function getFundApplicationScreening(id: string) {
   return authenticatedFetch<FundApplicationScreening>(`${BASE}/${id}/screening`);
 }
+
+/** Every paper filed against the application, oldest first within each kind. */
+export function listFundApplicationDocuments(id: string) {
+  return authenticatedFetch<FundApplicationDocument[]>(`${BASE}/${id}/documents`);
+}
+
+/**
+ * File the signed form (or another paper). Multipart: the file plus `kind` and, when it
+ * replaces an earlier file of the same kind, a `note` saying why — the API refuses a
+ * silent replacement, and keeps the earlier file either way.
+ */
+export function fileFundApplicationDocument(
+  id: string,
+  kind: FundApplicationDocumentKind,
+  file: File,
+  note?: string,
+) {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('kind', kind);
+  if (note?.trim()) form.append('note', note.trim());
+  return authenticatedMultipartFetch<FundApplicationDocument>(`${BASE}/${id}/documents`, form);
+}
+
+/** The authenticated URL of the bytes — opened with the session's token, never a public link. */
+export function fundApplicationDocumentFileUrl(id: string, documentId: string) {
+  return `${siteConfig.apiUrl}${BASE}/${id}/documents/${documentId}/file`;
+}
+

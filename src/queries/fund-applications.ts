@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import type { FundApplicationDocumentKind } from '@/types/admin/fund-applications';
 import { ApiClientError } from '@/lib/api/error';
 import {
   createFundApplication,
@@ -9,6 +10,8 @@ import {
   signFundApplication,
   updateFundApplication,
   type FundApplicationFilters,
+  fileFundApplicationDocument,
+  listFundApplicationDocuments,
 } from '@/lib/api/fund-applications';
 import type {
   DeclarationsInput,
@@ -21,6 +24,7 @@ export const fundApplicationKeys = {
   list: (filters: FundApplicationFilters) =>
     [...fundApplicationKeys.all, 'list', filters] as const,
   one: (id: string) => [...fundApplicationKeys.all, 'one', id] as const,
+  documents: (id: string) => [...fundApplicationKeys.all, 'documents', id] as const,
   screening: (id: string) =>
     [...fundApplicationKeys.all, 'screening', id] as const,
 };
@@ -105,3 +109,32 @@ export function useSignFundApplication() {
     onError: (error) => toast.error(mutationError(error)),
   });
 }
+
+export function useFundApplicationDocuments(id: string | null) {
+  return useQuery({
+    queryKey: fundApplicationKeys.documents(id ?? ''),
+    queryFn: () => listFundApplicationDocuments(id ?? ''),
+    enabled: !!id,
+  });
+}
+
+export function useFileFundApplicationDocument(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      kind,
+      file,
+      note,
+    }: {
+      kind: FundApplicationDocumentKind;
+      file: File;
+      note?: string;
+    }) => fileFundApplicationDocument(id, kind, file, note),
+    onSuccess: (doc) => {
+      toast.success(`${doc.kind.replaceAll('_', ' ').toLowerCase()} filed by ${doc.filedBy.name}`);
+      void queryClient.invalidateQueries({ queryKey: fundApplicationKeys.documents(id) });
+    },
+    onError: (error) => toast.error(mutationError(error)),
+  });
+}
+

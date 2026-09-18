@@ -136,3 +136,30 @@ export const blockingGapKinds: readonly ScreeningGapKind[] = [
   'LICENCE_OR_PERMIT',
   'DOCUMENTS_INCOMPLETE',
 ];
+
+export const fundApplicationDocumentKinds = [
+  'SIGNED_FORM',
+  'NATIONAL_ID',
+  'DRIVING_LICENCE',
+  'PROOF_OF_SAVINGS',
+  'OTHER',
+] as const;
+export type FundApplicationDocumentKind = (typeof fundApplicationDocumentKinds)[number];
+
+/**
+ * A paper filed against the application, engraved against the employee who filed it. The
+ * API never updates or deletes one of these; a replacement carries `supersedesId`.
+ */
+export type FundApplicationDocument = {
+  id: string;
+  kind: FundApplicationDocumentKind;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  sha256: string;
+  filedBy: { userId: string; uzaId: string | null; name: string };
+  filedAt: string;
+  note: string | null;
+  supersedesId: string | null;
+};
+

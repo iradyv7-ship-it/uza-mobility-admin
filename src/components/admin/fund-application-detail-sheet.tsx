@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FundApplicationDocuments } from '@/components/admin/fund-application-documents';
 import { StatusBadge } from '@/components/admin/shared/status-badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -80,6 +81,8 @@ export function FundApplicationDetailSheet({ id, open, onOpenChange }: Props) {
             <Declarations key={`${a.id}:${a.updatedAt}`} a={a} locked={signed} />
             <Separator />
             {signed ? <SignedBlock a={a} /> : <SignatureForm a={a} />}
+            <Separator />
+            <FundApplicationDocuments applicationId={a.id} signed={signed} />
             <Separator />
             <Screening id={a.id} />
           </div>
