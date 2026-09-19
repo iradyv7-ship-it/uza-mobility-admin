@@ -8,8 +8,12 @@ import type {
   CreateLoanInput,
   ReviewLoanChangeInput,
 } from '@/schemas/loans';
+import { authenticatedMultipartFetch } from '@/lib/api/multipart';
 import type {
   Loan,
+  LoanRepayment,
+  LoanRepaymentSource,
+  RepaymentImportResult,
   LoanChangeRequest,
   LoanDetail,
   LoanStatus,
@@ -74,3 +78,40 @@ export function reviewLoanChange(
     { method: 'PATCH', body: JSON.stringify(body) },
   );
 }
+
+// ── Servicing: what happens after the bank says yes ─────────────────────────────────────
+
+export function disburseLoan(id: string, body: { disbursedAt?: string; reference?: string }) {
+  return authenticatedFetch<Loan>(`/admin/loans/${id}/disburse`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export function listLoanRepayments(id: string) {
+  return authenticatedFetch<LoanRepayment[]>(`/admin/loans/${id}/repayments`);
+}
+
+export function recordLoanRepayment(
+  id: string,
+  body: { amountRwf: number; paidAt: string; reference: string; source: LoanRepaymentSource; note?: string },
+) {
+  return authenticatedFetch<{ repayment: LoanRepayment; duplicate: boolean; loan: Loan }>(
+    `/admin/loans/${id}/repayments`,
+    { method: 'POST', body: JSON.stringify(body) },
+  );
+}
+
+export function importLoanRepayments(file: File) {
+  const form = new FormData();
+  form.append('file', file);
+  return authenticatedMultipartFetch<RepaymentImportResult>('/admin/loans/repayments/import', form);
+}
+
+export function closeLoan(id: string, body: { note?: string }) {
+  return authenticatedFetch<{ loan: Loan; reserveReturnedRwf: number }>(`/admin/loans/${id}/close`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+

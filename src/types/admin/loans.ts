@@ -83,8 +83,11 @@ export type Loan = {
   totalRepayableRwf: number;
   outstandingRwf: number;
   arrearsRwf: number;
+  /** Every repayment recorded. Balance = totalRepayableRwf - paidRwf once disbursed. */
+  paidRwf: number;
   status: LoanStatus;
   disbursedAt: string | null;
+  closedAt: string | null;
   createdAt: string;
   updatedAt: string;
   vehicle: LoanVehicle | null;
@@ -130,3 +133,27 @@ export const lenderOptions = [
   { key: 'equity', label: 'Equity Bank Rwanda' },
   { key: 'ncba', label: 'NCBA Rwanda' },
 ] as const;
+
+export const loanRepaymentSources = ['LENDER_FILE', 'MANUAL', 'SWEEP'] as const;
+export type LoanRepaymentSource = (typeof loanRepaymentSources)[number];
+
+export type LoanRepayment = {
+  id: string;
+  loanId: string;
+  amountRwf: number;
+  paidAt: string;
+  reference: string;
+  source: LoanRepaymentSource;
+  recordedByUserId: string | null;
+  note: string | null;
+  createdAt: string;
+};
+
+export type RepaymentImportResult = {
+  rows: number;
+  imported: number;
+  duplicates: number;
+  failed: { row: { loanRef: string; amountRwf: number; reference: string }; problem: string }[];
+  parseErrors: { row: number; problem: string }[];
+};
+

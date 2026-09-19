@@ -9,6 +9,11 @@ import {
   listLoans,
   reviewLoanChange,
   type LoanFilters,
+  closeLoan,
+  disburseLoan,
+  importLoanRepayments,
+  listLoanRepayments,
+  recordLoanRepayment,
 } from '@/lib/api/loans';
 import type {
   ChangeTenorInput,
@@ -22,6 +27,7 @@ export const loanKeys = {
   one: (id: string) => [...loanKeys.all, 'one', id] as const,
   changeRequests: (id: string) =>
     [...loanKeys.all, 'change-requests', id] as const,
+  repayments: (id: string) => [...loanKeys.all, 'repayments', id] as const,
 };
 
 function mutationError(error: unknown, fallback: string) {
@@ -102,3 +108,66 @@ export function useReviewLoanChange(loanId: string) {
       toast.error(mutationError(error, 'Failed to review the change')),
   });
 }
+
+export function useLoanRepayments(id: string | null) {
+  return useQuery({
+    queryKey: loanKeys.repayments(id ?? ''),
+    queryFn: () => listLoanRepayments(id ?? ''),
+    enabled: !!id,
+  });
+}
+
+export function useDisburseLoan(loanId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { disbursedAt?: string; reference?: string }) => disburseLoan(loanId, body),
+    onSuccess: (l) => {
+      toast.success(`${l.reference} disbursed — daily target RWF ${l.dailyRwf.toLocaleString('en-RW')}`);
+      void queryClient.invalidateQueries({ queryKey: loanKeys.all });
+    },
+    onError: (error) => toast.error(mutationError(error, 'Could not record the disbursement.')),
+  });
+}
+
+export function useRecordLoanRepayment(loanId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Parameters<typeof recordLoanRepayment>[1]) => recordLoanRepayment(loanId, body),
+    onSuccess: (r) => {
+      toast[r.duplicate ? 'info' : 'success'](
+        r.duplicate ? `Reference ${r.repayment.reference} was already on file — nothing recorded twice.` : `Repayment recorded. Arrears now RWF ${r.loan.arrearsRwf.toLocaleString('en-RW')}.`,
+      );
+      void queryClient.invalidateQueries({ queryKey: loanKeys.all });
+    },
+    onError: (error) => toast.error(mutationError(error, 'Could not record the repayment.')),
+  });
+}
+
+export function useImportLoanRepayments() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => importLoanRepayments(file),
+    onSuccess: (r) => {
+      toast.success(`${r.imported} recorded, ${r.duplicates} already on file, ${r.failed.length + r.parseErrors.length} to look at`);
+      void queryClient.invalidateQueries({ queryKey: loanKeys.all });
+    },
+    onError: (error) => toast.error(mutationError(error, 'Could not import the file.')),
+  });
+}
+
+export function useCloseLoan(loanId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { note?: string }) => closeLoan(loanId, body),
+    onSuccess: (r) => {
+      toast.success(
+        r.reserveReturnedRwf > 0
+          ? `${r.loan.reference} closed. Reserve of RWF ${r.reserveReturnedRwf.toLocaleString('en-RW')} returned to the driver.`
+          : `${r.loan.reference} closed.`,
+      );
+      void queryClient.invalidateQueries({ queryKey: loanKeys.all });
+    },
+    onError: (error) => toast.error(mutationError(error, 'Could not close the loan.')),
+  });
+}
+
