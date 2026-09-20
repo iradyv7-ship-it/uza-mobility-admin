@@ -18,6 +18,13 @@ import type {
   LoanDetail,
   LoanStatus,
 } from '@/types/admin/loans';
+import type {
+  ApplyScenarioBody,
+  LenderTermsSummary,
+  Scenario,
+  ScenarioInput,
+  Study,
+} from '@/types/admin/scenario';
 
 /**
  * Loan origination, tenor changes, and lender change-request review — against
@@ -115,3 +122,29 @@ export function closeLoan(id: string, body: { note?: string }) {
   });
 }
 
+
+// ── Scenarios: the formulas, applied to this loan or studied freely ─────────────────────
+
+export function getLoanScenario(id: string) {
+  return authenticatedFetch<Study & { loan: { id: string; reference: string; disbursedAt: string | null; status: string } }>(
+    `/admin/loans/${id}/scenario`,
+  );
+}
+
+export function studyScenario(body: ScenarioInput) {
+  return authenticatedFetch<Study>('/financing/scenarios', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export function listLenderTerms() {
+  return authenticatedFetch<LenderTermsSummary[]>('/financing/scenarios/lender-terms');
+}
+
+export function applyLoanScenario(id: string, body: ApplyScenarioBody) {
+  return authenticatedFetch<{ scenario: Scenario; loan: Loan }>(`/admin/loans/${id}/scenario/apply`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}

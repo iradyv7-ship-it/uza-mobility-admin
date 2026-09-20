@@ -1,6 +1,7 @@
 import { adminRoutes } from '@/config/routes';
 import { ElementType } from 'react';
 import {
+  Calculator,
   Home,
   List,
   Users,
@@ -145,6 +146,12 @@ export const adminNavGroups: NavGroup[] = [
         label: 'Loans',
         href: adminRoutes.loans,
         icon: DollarSign,
+        permissions: ['financing:read', 'financing:send-to-bank'],
+      },
+      {
+        label: 'Scenarios',
+        href: adminRoutes.scenarios,
+        icon: Calculator,
         permissions: ['financing:read', 'financing:send-to-bank'],
       },
       {

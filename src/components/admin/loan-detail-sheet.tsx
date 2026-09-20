@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoanServicing } from '@/components/admin/loan-servicing';
+import { ScenarioStudio } from '@/components/admin/scenario-studio';
 import { StatusBadge } from '@/components/admin/shared/status-badge';
 import { Button } from '@/components/ui/button';
 import { NumberInput, numberRegisterOptions } from '@/components/ui/number-input';
@@ -74,6 +75,8 @@ export function LoanDetailSheet({ id, open, onOpenChange }: Props) {
         ) : (
           <div className="space-y-8 py-6">
             <Summary l={l} />
+            <Separator />
+            <ScenarioStudio loanId={l.id} disbursed={!!l.disbursedAt} />
             <Separator />
             <LoanServicing l={l} />
             <Separator />

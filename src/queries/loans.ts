@@ -14,7 +14,12 @@ import {
   importLoanRepayments,
   listLoanRepayments,
   recordLoanRepayment,
+  applyLoanScenario,
+  getLoanScenario,
+  listLenderTerms,
+  studyScenario,
 } from '@/lib/api/loans';
+import type { ApplyScenarioBody, ScenarioInput } from '@/types/admin/scenario';
 import type {
   ChangeTenorInput,
   CreateLoanInput,
@@ -28,6 +33,9 @@ export const loanKeys = {
   changeRequests: (id: string) =>
     [...loanKeys.all, 'change-requests', id] as const,
   repayments: (id: string) => [...loanKeys.all, 'repayments', id] as const,
+  scenario: (id: string) => [...loanKeys.all, 'scenario', id] as const,
+  study: (input: ScenarioInput | null) => [...loanKeys.all, 'study', input] as const,
+  lenderTerms: () => [...loanKeys.all, 'lender-terms'] as const,
 };
 
 function mutationError(error: unknown, fallback: string) {
@@ -171,3 +179,42 @@ export function useCloseLoan(loanId: string) {
   });
 }
 
+
+// ── Scenarios ───────────────────────────────────────────────────────────────────────────
+
+export function useLoanScenario(loanId: string | null) {
+  return useQuery({
+    queryKey: loanKeys.scenario(loanId ?? ''),
+    queryFn: () => getLoanScenario(loanId!),
+    enabled: !!loanId,
+  });
+}
+
+/** A free study: re-runs whenever the input changes (the studio debounces the input). */
+export function useScenarioStudy(input: ScenarioInput | null) {
+  return useQuery({
+    queryKey: loanKeys.study(input),
+    queryFn: () => studyScenario(input!),
+    enabled: !!input && input.vehiclePriceRwf > 0 && input.tenorMonths > 0,
+    placeholderData: (prev) => prev,
+    staleTime: 60_000,
+  });
+}
+
+export function useLenderTerms() {
+  return useQuery({ queryKey: loanKeys.lenderTerms(), queryFn: listLenderTerms, staleTime: 10 * 60_000 });
+}
+
+export function useApplyLoanScenario(loanId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: ApplyScenarioBody) => applyLoanScenario(loanId, body),
+    onSuccess: ({ loan, scenario }) => {
+      toast.success(
+        `${loan.reference} booked — bank ${scenario.split.bankLoanRwf.toLocaleString('en-RW')}, UZA ${scenario.split.uzaCollateralRwf.toLocaleString('en-RW')}, daily ${loan.dailyRwf.toLocaleString('en-RW')}`,
+      );
+      void queryClient.invalidateQueries({ queryKey: loanKeys.all });
+    },
+    onError: (error) => toast.error(mutationError(error, 'Could not book these numbers.')),
+  });
+}

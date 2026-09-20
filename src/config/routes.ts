@@ -24,6 +24,7 @@ export const adminRoutes = {
   financing: '/admin/financing',
   fundApplications: '/admin/fund-applications',
   loans: '/admin/loans',
+  scenarios: '/admin/scenarios',
   tasks: '/admin/tasks',
   mechanics: '/admin/mechanics',
   trainingCourses: '/admin/training-courses',
