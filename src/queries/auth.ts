@@ -8,6 +8,7 @@ import {
   forgotPassword,
   getMe,
   login,
+  verifyLogin,
   logout,
   register,
   resetPassword,
@@ -33,14 +34,30 @@ export const authKeys = {
   me: () => [...authKeys.all, 'me'] as const,
 };
 
+/** Step one of the admin sign-in: password → challenge (a code is sent to the email). */
 export function useLogin() {
+  return useMutation({
+    mutationFn: (input: LoginInput) => login(input),
+  });
+}
+
+/** Step two: the one-time code → tokens → session. */
+export function useVerifyLogin() {
   const router = useAppRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: LoginInput) => {
-      const tokens = await login(input);
+    mutationFn: async (input: {
+      challengeId: string;
+      code: string;
+      email: string;
+      password: string;
+    }) => {
+      const tokens = await verifyLogin({
+        challengeId: input.challengeId,
+        code: input.code,
+      });
       const me = normalizeMeUser(await getMe(tokens.accessToken));
       const result = await signInWithSession({
         ...tokens,

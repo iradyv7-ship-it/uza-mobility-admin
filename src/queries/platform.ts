@@ -15,6 +15,9 @@ import {
   getDiscountSalesReport,
   updateAdminUserRoles,
   updatePricingRule,
+  createStaffInvite,
+  listStaffInvites,
+  revokeStaffInvite,
 } from '@/lib/api/platform';
 import type { ActivityLogsFilters } from '@/types/admin/platform';
 import type { DiscountSalesFilters } from '@/types/admin/discount-sales';
@@ -28,6 +31,7 @@ import type { CreateAdminAccountInput } from '@/schemas/admin-accounts';
 export const platformKeys = {
   all: ['platform'] as const,
   users: () => [...platformKeys.all, 'users'] as const,
+  staffInvites: () => [...platformKeys.all, 'staff-invites'] as const,
   activityLogs: (filters: ActivityLogsFilters) =>
     [...platformKeys.all, 'activity-logs', filters] as const,
   pricingRules: () => [...platformKeys.all, 'pricing-rules'] as const,
@@ -161,5 +165,33 @@ export function useDiscountSalesReport(filters: DiscountSalesFilters = {}) {
   return useQuery({
     queryKey: platformKeys.discountSales(filters),
     queryFn: () => getDiscountSalesReport(filters),
+  });
+}
+
+// ── Staff invites ───────────────────────────────────────────────────────────────────────
+
+export function useStaffInvites() {
+  return useQuery({ queryKey: platformKeys.staffInvites(), queryFn: listStaffInvites });
+}
+
+/** No toast with the code — the dialog keeps it on screen until the admin closes it. */
+export function useCreateStaffInvite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { email: string; roles: string[]; note?: string }) => createStaffInvite(body),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: platformKeys.staffInvites() }),
+    onError: (e) => toastError(e, 'Could not issue the invite.'),
+  });
+}
+
+export function useRevokeStaffInvite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => revokeStaffInvite(id),
+    onSuccess: () => {
+      toast.success('Invite revoked.');
+      void queryClient.invalidateQueries({ queryKey: platformKeys.staffInvites() });
+    },
+    onError: (e) => toastError(e, 'Could not revoke the invite.'),
   });
 }

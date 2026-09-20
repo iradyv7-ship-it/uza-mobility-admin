@@ -35,6 +35,7 @@ export const adminRoutes = {
   promotions: '/admin/promotions',
   sustainability: '/admin/sustainability',
   users: '/admin/users',
+  staffAccess: '/admin/staff-access',
   activityLogs: '/admin/activity-logs',
   pricingRules: '/admin/pricing-rules',
   discountSales: '/admin/discount-sales',

@@ -129,3 +129,40 @@ export async function downloadDiscountSalesPdf(
   }
   return response.blob();
 }
+
+// ── Staff invites: the only way a self-registered account becomes staff ─────────────────
+
+export type StaffInviteStatus = 'OPEN' | 'USED' | 'REVOKED' | 'EXPIRED';
+export type StaffInvite = {
+  id: string;
+  email: string;
+  roles: string[];
+  note: string | null;
+  createdAt: string;
+  expiresAt: string;
+  usedAt: string | null;
+  revokedAt: string | null;
+  status: StaffInviteStatus;
+};
+export type IssuedStaffInvite = {
+  id: string;
+  email: string;
+  roles: string[];
+  expiresAt: string;
+  emailed: boolean;
+  /** Shown once; never stored by the API in clear. */
+  code: string;
+};
+
+export function listStaffInvites() {
+  return authenticatedFetch<StaffInvite[]>('/admin/staff-invites');
+}
+export function createStaffInvite(body: { email: string; roles: string[]; note?: string }) {
+  return authenticatedFetch<IssuedStaffInvite>('/admin/staff-invites', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+export function revokeStaffInvite(id: string) {
+  return authenticatedFetch<{ revoked: boolean }>(`/admin/staff-invites/${id}`, { method: 'DELETE' });
+}

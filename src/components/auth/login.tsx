@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm, useFormState } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,7 +22,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { loginSchema, type LoginInput } from '@/schemas/auth';
-import { useLogin } from '@/queries/auth';
+import { useLogin, useVerifyLogin } from '@/queries/auth';
+import type { AdminLoginChallenge } from '@/lib/api/auth';
 import { ApiClientError } from '@/lib/api';
 import { authRoutes } from '@/config/routes';
 import { signOutClient } from '@/lib/auth/sign-out-client';
@@ -30,6 +31,9 @@ import { useAppRouter } from '@/lib/navigation/use-app-router';
 
 export function Login() {
   const login = useLogin();
+  const verify = useVerifyLogin();
+  const [challenge, setChallenge] = useState<AdminLoginChallenge | null>(null);
+  const [code, setCode] = useState('');
   const { status } = useSession();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -70,7 +74,11 @@ export function Login() {
       ? login.error instanceof ApiClientError
         ? login.error.message
         : 'Unable to sign in. Please try again.'
-      : null);
+      : verify.isError
+        ? verify.error instanceof ApiClientError
+          ? verify.error.message
+          : 'Unable to verify the code. Please try again.'
+        : null);
 
   useEffect(() => {
     if (rootMessage) {
@@ -85,6 +93,10 @@ export function Login() {
     form.clearErrors('root');
     login.reset();
     login.mutate(values, {
+      onSuccess: (ch) => {
+        setChallenge(ch);
+        setCode(ch.devCode ?? '');
+      },
       onError: (error) => {
         const message =
           error instanceof ApiClientError
@@ -94,6 +106,74 @@ export function Login() {
       },
     });
   });
+
+  const onVerify = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!challenge) return;
+    verify.reset();
+    const { email, password } = form.getValues();
+    verify.mutate({ challengeId: challenge.challengeId, code, email, password });
+  };
+
+  if (challenge) {
+    return (
+      <AuthFormCard>
+        <div className="space-y-4">
+          <AuthPageHeader
+            title="Enter your sign-in code"
+            description={`A six-digit code was sent to ${challenge.deliveredTo}. It expires in 10 minutes.`}
+          />
+          <form onSubmit={onVerify} className="space-y-3">
+            <div className={authFieldClassName}>
+              <Label htmlFor="otp" className={authLabelClassName}>
+                One-time code
+              </Label>
+              <Input
+                id="otp"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="000000"
+                className={`${authInputClassName} text-center text-2xl tracking-[0.5em]`}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                autoFocus
+              />
+              {challenge.devCode ? (
+                <p className="text-xs text-amber-700">
+                  Mail is off on this server; the code was pre-filled for development.
+                </p>
+              ) : null}
+            </div>
+            {rootMessage ? (
+              <div ref={errorRef}>
+                <AuthFormMessage variant="error" message={rootMessage} />
+              </div>
+            ) : null}
+            <AuthPrimaryButton type="submit" disabled={verify.isPending || code.length !== 6}>
+              {verify.isPending ? 'Verifying…' : 'Continue'}
+            </AuthPrimaryButton>
+            <button
+              type="button"
+              className="w-full text-xs text-[#356769] hover:text-[#174438]"
+              onClick={() => {
+                setChallenge(null);
+                setCode('');
+                verify.reset();
+                login.reset();
+              }}
+            >
+              Start again
+            </button>
+          </form>
+          <p className={authFooterLinkClassName}>
+            A password alone never opens the admin panel. If you did not try to sign in, change your password now.
+          </p>
+        </div>
+      </AuthFormCard>
+    );
+  }
 
   return (
     <AuthFormCard>

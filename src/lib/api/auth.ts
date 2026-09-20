@@ -4,8 +4,27 @@ import type { MeUser } from '@/types/auth/me-user';
 import type { LoginInput } from '@/schemas/auth';
 import type { RegisterInput } from '@/schemas/auth';
 
+/** Step one: password. The API answers with a challenge, never with tokens. */
+export type AdminLoginChallenge = {
+  challengeId: string;
+  otpRequired: true;
+  expiresAt: string;
+  deliveredTo: string;
+  delivered: 'email' | 'log';
+  /** Only outside production, and only when mail is off. */
+  devCode?: string;
+};
+
 export function login(input: LoginInput) {
-  return apiFetch<AuthTokens>('/auth/admin/login', {
+  return apiFetch<AdminLoginChallenge>('/auth/admin/login', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+/** Step two: the one-time code from the email, in exchange for tokens. */
+export function verifyLogin(input: { challengeId: string; code: string }) {
+  return apiFetch<AuthTokens>('/auth/admin/login/verify', {
     method: 'POST',
     body: JSON.stringify(input),
   });

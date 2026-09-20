@@ -2,6 +2,7 @@ import { adminRoutes } from '@/config/routes';
 import { ElementType } from 'react';
 import {
   Calculator,
+  KeyRound,
   Home,
   List,
   Users,
@@ -227,6 +228,12 @@ export const adminNavGroups: NavGroup[] = [
         label: 'Users',
         href: adminRoutes.users,
         icon: Users,
+        superAdminOnly: true,
+      },
+      {
+        label: 'Staff access',
+        href: adminRoutes.staffAccess,
+        icon: KeyRound,
         superAdminOnly: true,
       },
       {
