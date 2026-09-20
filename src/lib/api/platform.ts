@@ -166,3 +166,18 @@ export function createStaffInvite(body: { email: string; roles: string[]; note?:
 export function revokeStaffInvite(id: string) {
   return authenticatedFetch<{ revoked: boolean }>(`/admin/staff-invites/${id}`, { method: 'DELETE' });
 }
+
+// ── Access recovery: the layers under the password and the emailed code ─────────────────
+
+export function issueRecoveryCode(userId: string, body: { reason: string }) {
+  return authenticatedFetch<{ code: string; expiresAt: string; howToUse: string }>(
+    `/admin/staff-invites/recovery-code/${userId}`,
+    { method: 'POST', body: JSON.stringify(body) },
+  );
+}
+export function resetUserAccess(userId: string, body: { reason: string }) {
+  return authenticatedFetch<{ temporaryPassword: string; mustChangePassword: true }>(
+    `/admin/staff-invites/reset-access/${userId}`,
+    { method: 'POST', body: JSON.stringify(body) },
+  );
+}

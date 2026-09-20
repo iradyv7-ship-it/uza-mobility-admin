@@ -13,7 +13,16 @@ import { formatDateTime } from '@/lib/admin/format';
 import { PLATFORM_STAFF_ROLES } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
 import type { IssuedStaffInvite, StaffInviteStatus } from '@/lib/api/platform';
-import { useCreateStaffInvite, useRevokeStaffInvite, useStaffInvites } from '@/queries/platform';
+import {
+  useAdminUsers,
+  useCreateStaffInvite,
+  useIssueRecoveryCode,
+  useResetUserAccess,
+  useRevokeStaffInvite,
+  useStaffInvites,
+} from '@/queries/platform';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
+import { LifeBuoy } from 'lucide-react';
 
 const LENDER_ROLES = ['LENDER_UNGUKA', 'LENDER_EQUITY', 'LENDER_NCBA'];
 const ROLE_CHOICES = [...PLATFORM_STAFF_ROLES.filter((r) => r !== 'SUPER_ADMIN'), ...LENDER_ROLES];
@@ -137,6 +146,79 @@ export function StaffInvitesPanel() {
           )}
         </div>
       </div>
+
+      <RecoveryPanel />
+    </div>
+  );
+}
+
+/**
+ * When the normal doors are shut: a forgotten password, a mailbox that cannot be reached.
+ * Layer 1 is self-serve (Forgot password). These are layers 2 and 3, super admin only, each
+ * with a written reason, each audited, each shown once and never emailed.
+ */
+function RecoveryPanel() {
+  const users = useAdminUsers();
+  const issue = useIssueRecoveryCode();
+  const reset = useResetUserAccess();
+  const [userId, setUserId] = useState('');
+  const [reason, setReason] = useState('');
+  const [shown, setShown] = useState<{ kind: 'code' | 'password'; value: string; expiresAt?: string } | null>(null);
+  const staffOrLender = (users.data ?? []).filter((u) =>
+    (u.roles ?? []).some((r: string) => r.startsWith('LENDER_') || (PLATFORM_STAFF_ROLES as readonly string[]).includes(r)),
+  );
+  const ready = !!userId && reason.trim().length >= 8;
+
+  return (
+    <div className="space-y-4 rounded-lg border p-4">
+      <h2 className="flex items-center gap-2 text-sm font-semibold">
+        <LifeBuoy className="h-4 w-4" /> Access recovery
+      </h2>
+      <p className="text-xs text-muted-foreground">
+        Forgot password → they use <b>Forgot password</b> themselves (email). If email is the problem: <b>Recovery code</b> stands in
+        for one emailed sign-in code for 30 minutes. If the password is lost too: <b>Reset access</b> gives a temporary password,
+        forces a change at first sign-in and signs out every session. Read codes and passwords to the person on a call <i>you</i>
+        placed. Never email or message them. Every action is audited with your reason.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,320px)_1fr]">
+        <div className="space-y-1">
+          <Label htmlFor="rec-user">Person</Label>
+          <NativeSelect id="rec-user" value={userId} onChange={(e) => { setUserId(e.target.value); setShown(null); }}>
+            <NativeSelectOption value="">— choose a staff or bank account —</NativeSelectOption>
+            {staffOrLender.map((u) => (
+              <NativeSelectOption key={u.id} value={u.id}>
+                {u.email} · {(u.roles ?? []).join(', ').toLowerCase()}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="rec-reason">Reason (audited)</Label>
+          <Input id="rec-reason" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Paulin locked out — Unguka mailbox migration; identity confirmed by call-back to his desk line" />
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant="outline" disabled={!ready || issue.isPending} onClick={() => issue.mutate({ userId, reason }, { onSuccess: (r) => setShown({ kind: 'code', value: r.code, expiresAt: r.expiresAt }) })}>
+          Issue recovery code
+        </Button>
+        <Button size="sm" variant="outline" disabled={!ready || reset.isPending} onClick={() => { if (window.confirm('Reset this person\'s access? Their password stops working and every session is signed out.')) reset.mutate({ userId, reason }, { onSuccess: (r) => setShown({ kind: 'password', value: r.temporaryPassword }) }); }}>
+          Reset access
+        </Button>
+      </div>
+      {shown ? (
+        <div className="space-y-1 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-900 dark:bg-amber-950/40">
+          <div className="text-xs text-muted-foreground">
+            {shown.kind === 'code' ? `Recovery code · expires ${formatDateTime(shown.expiresAt!)} · they type it at the code step instead of the emailed digits` : 'Temporary password · must be changed at first sign-in · all sessions signed out'}
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <code className="text-lg tracking-widest">{shown.value}</code>
+            <Button type="button" size="sm" variant="ghost" onClick={() => { void navigator.clipboard.writeText(shown.value); toast.success('Copied'); }}>
+              <Copy className="mr-1 h-3.5 w-3.5" /> Copy
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">Shown once. Read it out; do not send it.</p>
+        </div>
+      ) : null}
     </div>
   );
 }

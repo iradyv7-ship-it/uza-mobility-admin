@@ -130,16 +130,18 @@ export function Login() {
               </Label>
               <Input
                 id="otp"
-                inputMode="numeric"
+                inputMode="text"
                 autoComplete="one-time-code"
-                pattern="[0-9]*"
-                maxLength={6}
+                maxLength={16}
                 placeholder="000000"
-                className={`${authInputClassName} text-center text-2xl tracking-[0.5em]`}
+                className={`${authInputClassName} text-center text-2xl tracking-[0.4em]`}
                 value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^0-9A-Z-]/g, '').slice(0, 16))}
                 autoFocus
               />
+              <p className="text-xs text-muted-foreground">
+                Mailbox unreachable? A super admin can read you a one-time recovery code (R-…); enter it here instead.
+              </p>
               {challenge.devCode ? (
                 <p className="text-xs text-amber-700">
                   Mail is off on this server; the code was pre-filled for development.
@@ -151,7 +153,7 @@ export function Login() {
                 <AuthFormMessage variant="error" message={rootMessage} />
               </div>
             ) : null}
-            <AuthPrimaryButton type="submit" disabled={verify.isPending || code.length !== 6}>
+            <AuthPrimaryButton type="submit" disabled={verify.isPending || code.length < 6}>
               {verify.isPending ? 'Verifying…' : 'Continue'}
             </AuthPrimaryButton>
             <button

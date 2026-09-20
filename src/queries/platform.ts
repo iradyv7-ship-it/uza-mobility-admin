@@ -18,6 +18,8 @@ import {
   createStaffInvite,
   listStaffInvites,
   revokeStaffInvite,
+  issueRecoveryCode,
+  resetUserAccess,
 } from '@/lib/api/platform';
 import type { ActivityLogsFilters } from '@/types/admin/platform';
 import type { DiscountSalesFilters } from '@/types/admin/discount-sales';
@@ -193,5 +195,23 @@ export function useRevokeStaffInvite() {
       void queryClient.invalidateQueries({ queryKey: platformKeys.staffInvites() });
     },
     onError: (e) => toastError(e, 'Could not revoke the invite.'),
+  });
+}
+
+// ── Access recovery ─────────────────────────────────────────────────────────────────────
+// No toasts with secrets: the panel keeps the code / temporary password on screen itself.
+
+export function useIssueRecoveryCode() {
+  return useMutation({
+    mutationFn: ({ userId, reason }: { userId: string; reason: string }) => issueRecoveryCode(userId, { reason }),
+    onError: (e) => toastError(e, 'Could not issue a recovery code.'),
+  });
+}
+export function useResetUserAccess() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, reason }: { userId: string; reason: string }) => resetUserAccess(userId, { reason }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: platformKeys.users() }),
+    onError: (e) => toastError(e, 'Could not reset access.'),
   });
 }
